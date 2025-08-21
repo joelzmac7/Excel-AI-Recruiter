@@ -1,10 +1,10 @@
+const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '.env.local') });
 
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const { GoogleGenAI, Type } = require('@google/genai');
-const path = require('path');
 
 // --- Server and Middleware Setup ---
 const app = express();
