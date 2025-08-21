@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -13,10 +15,10 @@ app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' }));
 
 // --- Gemini API Setup ---
-if (!process.env.API_KEY) {
-    throw new Error("API_KEY environment variable not set in the server environment");
+if (!process.env.GEMINI_API_KEY) {
+    throw new Error("GEMINI_API_KEY environment variable not set in the server environment");
 }
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 const COMPANY_NAME = 'Excel Medical Staffing';
 
 // --- Schemas (Copied from original geminiService.ts) ---
