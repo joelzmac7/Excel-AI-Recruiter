@@ -17,7 +17,7 @@ const MetricCard: React.FC<{
     color: string;
     onIncrement: () => void;
     onDecrement: () => void;
-}> = ({ title, current, goal, icon, color }) => {
+}> = ({ title, current, goal, icon, color, onIncrement, onDecrement }) => {
     const percentage = Math.min((current / goal) * 100, 100);
     const isOnTrack = percentage >= 80;
 
