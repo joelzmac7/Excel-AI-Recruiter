@@ -3,6 +3,8 @@ import { AppView, RecruiterInfo, PipelineMetrics, CandidateBookmark, ToDo, Issue
 import { COMPANY_LOGO_URL, COMPANY_NAME } from './constants';
 import Navigation from './components/Navigation';
 import Dashboard from './components/Dashboard';
+import CandidatesView from './components/CandidatesView';
+import IntegrationsView from './components/IntegrationsView';
 import TodosView from './components/TodosView';
 import IssuesView from './components/IssuesView';
 import SocialMediaView from './components/SocialMediaView';
