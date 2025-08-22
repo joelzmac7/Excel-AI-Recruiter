@@ -160,7 +160,7 @@ export interface SocialPosts {
 }
 
 // Navigation Types
-export type AppView = 'dashboard' | 'candidates' | 'todos' | 'issues' | 'social' | 'learning' | 'coaching';
+export type AppView = 'dashboard' | 'todos' | 'issues' | 'social' | 'learning' | 'coaching';
 
 export interface NavigationItem {
     id: AppView;

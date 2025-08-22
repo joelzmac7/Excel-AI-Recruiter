@@ -3,7 +3,6 @@ import { AppView, RecruiterInfo, PipelineMetrics, CandidateBookmark, ToDo, Issue
 import { COMPANY_LOGO_URL, COMPANY_NAME } from './constants';
 import Navigation from './components/Navigation';
 import Dashboard from './components/Dashboard';
-import CandidatesView from './components/CandidatesView';
 import TodosView from './components/TodosView';
 import IssuesView from './components/IssuesView';
 import SocialMediaView from './components/SocialMediaView';
@@ -49,9 +48,7 @@ const App: React.FC = () => {
     const renderCurrentView = () => {
         switch (currentView) {
             case 'dashboard':
-                return <Dashboard metrics={pipelineMetrics} nudges={nudges} />;
-            case 'candidates':
-                return <CandidatesView candidates={candidates} setCandidates={setCandidates} />;
+                return <Dashboard metrics={pipelineMetrics} setPipelineMetrics={setPipelineMetrics} nudges={nudges} />;
             case 'todos':
                 return <TodosView todos={todos} setTodos={setTodos} recruiterInfo={recruiterInfo} />;
             case 'issues':
