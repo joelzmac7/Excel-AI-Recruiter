@@ -11,14 +11,24 @@ export interface JobDetails {
 }
 
 export interface RecruiterInfo {
+    id: string;
     name: string;
     email: string;
     phone: string;
-    id?: string;
-    role?: 'recruiter' | 'director';
+    role: 'recruiter' | 'manager' | 'admin';
+    goals: RecruiterGoals;
 }
 
-// Phase 1 Types
+export interface RecruiterGoals {
+    callsPerDay: number;
+    submissionsPerWeek: number;
+    smsPerDay: number;
+    toasPerWeek: number;
+    bookedPerMonth: number;
+    pipelineCount: number;
+}
+
+// Phase 1 Types - Command Center
 export interface PipelineMetrics {
     toas: { current: number; goal: number };
     submissions: { current: number; goal: number };
@@ -30,59 +40,84 @@ export interface PipelineMetrics {
 
 export interface CandidateBookmark {
     id: string;
+    recruiterId: string;
     name: string;
-    nexusUrl: string;
-    status: 'Hot Lead' | 'Ready to Submit' | 'In Process' | 'Submitted' | 'Placed';
-    readinessScore: number;
     specialty: string;
-    location: string;
-    notes: string;
-    dateAdded: string;
-    lastContact: string;
+    statusTag: string; // User-defined: Hot Lead, Compliance Hold, Ready to Submit
+    readinessScore: number; // 0-100
+    atsUrl: string; // Current page URL for one-click return
+    lastContactAt: string;
+    tags: string[];
+    notes?: string;
+    createdAt: string;
 }
 
 export interface ReadinessFactors {
-    profileComplete: boolean;
-    complianceDocs: boolean;
-    references: boolean;
-    availability: boolean;
+    profileCompleteness: number; // 0-100%
+    requiredDocs: { [key: string]: boolean }; // e.g., { license: true, resume: false }
+    recentEngagement: boolean; // Last reply within X days
+    recruiterNotes: string;
 }
 
-// Phase 2 Types
+export interface MetricsSnapshot {
+    id: string;
+    recruiterId: string;
+    period: 'daily' | 'weekly' | 'monthly';
+    date: string;
+    calls: number;
+    sms: number;
+    submissions: number;
+    booked: number;
+    toas: number;
+}
+
+// Phase 2 Types - Accountability & EOS/90
 export interface ToDo {
     id: string;
+    assigneeId: string;
+    creatorId: string;
     title: string;
     description: string;
-    assignedTo: string;
-    assignedBy: string;
-    dueDate: string;
-    completed: boolean;
+    dueAt: string;
+    status: 'open' | 'in-progress' | 'completed';
     priority: 'low' | 'medium' | 'high';
     category: string;
     createdAt: string;
+    completedAt?: string;
 }
 
 export interface Issue {
     id: string;
+    creatorId: string;
     title: string;
     description: string;
-    category: 'credentialing' | 'system' | 'client' | 'candidate' | 'other';
-    status: 'open' | 'discussed' | 'resolved';
-    reportedBy: string;
-    reportedAt: string;
-    resolvedAt?: string;
+    tags: string[]; // Compliance, Pay, Client, etc.
+    state: 'open' | 'discussed' | 'resolved';
     priority: 'low' | 'medium' | 'high';
+    createdAt: string;
+    discussedAt?: string;
+    resolvedAt?: string;
+    assignedTo?: string;
 }
 
-// Phase 3 Types
+export interface PayPackageCalculation {
+    billRate: number;
+    stipends: { [key: string]: number };
+    overtimeRules: string;
+    estimatedWeeklyTakeHome: number;
+    explanation: string;
+}
+
+// Phase 3 Types - Coach + Learning Center
 export interface CoachingNudge {
     id: string;
-    type: 'performance' | 'reminder' | 'suggestion' | 'celebration';
+    type: 'goal-progress' | 'contract-ending' | 'follow-up-reminder' | 'celebration';
     message: string;
     actionable: boolean;
-    action?: string;
+    suggestedAction?: string;
     dismissed: boolean;
     createdAt: string;
+    recruiterId: string;
 }
 
 export interface LearningGuide {
@@ -95,6 +130,8 @@ export interface LearningGuide {
     createdAt: string;
     isPublic: boolean;
     tags: string[];
+    screenshots?: string[];
+    transcript?: string;
 }
 
 export interface GuideStep {
@@ -106,18 +143,78 @@ export interface GuideStep {
     order: number;
 }
 
-export interface WeeklyScorecard {
+// Integration Types
+export interface IntegrationAdapter {
+    name: 'nexus' | 'sense' | 'ringcentral' | 'outlook' | 'teams' | 'linkedin';
+    connected: boolean;
+    lastSync?: string;
+    config?: { [key: string]: any };
+}
+
+export interface NexusCandidate {
+    id: string;
+    name: string;
+    specialty: string;
+    profileUrl: string;
+    submissionStatus?: string;
+    placementStatus?: string;
+}
+
+export interface SenseMessage {
+    id: string;
+    candidateId: string;
+    content: string;
+    direction: 'inbound' | 'outbound';
+    timestamp: string;
+    status: 'sent' | 'delivered' | 'read' | 'opted-out';
+}
+
+export interface RingCentralCall {
+    id: string;
     recruiterId: string;
-    weekOf: string;
-    metrics: PipelineMetrics;
-    performance: {
-        callsPerDay: number;
-        submissionRate: number;
-        responseRate: number;
-        pipelineGrowth: number;
-    };
-    aiInsights: string[];
-    recommendations: string[];
+    duration: number;
+    timestamp: string;
+    notes?: string;
+    transcript?: string;
+}
+
+// AI Assistant Types
+export interface ChatMessage {
+    id: string;
+    type: 'user' | 'assistant';
+    content: string;
+    timestamp: Date;
+    intent?: string;
+    actions?: MessageAction[];
+}
+
+export interface MessageAction {
+    label: string;
+    action: string;
+    data?: any;
+}
+
+export interface NaturalLanguageIntent {
+    intent: string;
+    entities: { [key: string]: any };
+    confidence: number;
+}
+
+// Audit & Security Types
+export interface AuditEvent {
+    id: string;
+    userId: string;
+    action: string;
+    payload: any;
+    timestamp: string;
+    ipAddress?: string;
+    userAgent?: string;
+}
+
+export interface UserRole {
+    id: string;
+    name: 'recruiter' | 'manager' | 'admin';
+    permissions: string[];
 }
 
 // Social Media Types (from original)
@@ -160,11 +257,38 @@ export interface SocialPosts {
 }
 
 // Navigation Types
-export type AppView = 'dashboard' | 'todos' | 'issues' | 'social' | 'learning' | 'coaching';
+export type AppView = 'dashboard' | 'candidates' | 'todos' | 'issues' | 'social' | 'learning' | 'coaching' | 'integrations';
 
 export interface NavigationItem {
     id: AppView;
     label: string;
     icon: string;
     phase: 1 | 2 | 3;
+    description?: string;
+}
+
+// Time Period Types
+export type TimePeriod = 'daily' | 'weekly' | 'monthly';
+
+// Filter Types
+export interface CandidateFilter {
+    specialty?: string;
+    location?: string;
+    readinessScore?: { min: number; max: number };
+    statusTag?: string;
+    availableIn?: string; // e.g., "2 weeks"
+}
+
+export interface TodoFilter {
+    assignee?: 'mine' | 'assigned-to-me' | 'all';
+    status?: ToDo['status'];
+    priority?: ToDo['priority'];
+    dueDate?: 'today' | 'this-week' | 'overdue';
+}
+
+export interface IssueFilter {
+    state?: Issue['state'];
+    tags?: string[];
+    priority?: Issue['priority'];
+    assignedTo?: string;
 }

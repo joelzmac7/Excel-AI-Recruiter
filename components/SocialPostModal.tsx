@@ -193,11 +193,17 @@ const SocialPostPanel: React.FC<{ platform: SocialPlatform; content: SocialPosts
                                             href={getShareLink('email', post as EmailVariation, companyUrl)}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="px-3 py-1.5 text-xs font-medium rounded-md text-center transition-all duration-200 bg-blue-100 text-blue-700 hover:bg-blue-200 flex items-center justify-center gap-1.5"
-                                            aria-label="Open in default email client"
+                                            className={`w-full sm:w-auto px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 flex items-center justify-center gap-1.5 ${
+                                                platform === 'sms' ? 'bg-green-100 text-green-700 hover:bg-green-200' :
+                                                platform === 'x' ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' :
+                                                'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                                            }`}
+                                            aria-label={`Open in ${platform === 'sms' ? 'Sense' : platform === 'x' ? 'X' : platformNames[platform]}`}
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 001.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" /><path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" /></svg>
-                                            Open Email
+                                            {platform === 'sms' ? 'Open in Sense' : 
+                                             platform === 'x' ? 'Share on X' : 
+                                             `Open in ${platformNames[platform]}`}
                                         </a>
                                     </div>
                                 </div>

@@ -5,6 +5,7 @@ interface DashboardProps {
     metrics: PipelineMetrics;
     setPipelineMetrics: (metrics: PipelineMetrics) => void;
     nudges: CoachingNudge[];
+    recruiterInfo: RecruiterInfo;
 }
 
 type TimeFilter = 'day' | 'week' | 'month';
@@ -75,7 +76,7 @@ const MetricCard: React.FC<{
     );
 };
 
-const Dashboard: React.FC<DashboardProps> = ({ metrics, setPipelineMetrics, nudges }) => {
+const Dashboard: React.FC<DashboardProps> = ({ metrics, setPipelineMetrics, nudges, recruiterInfo }) => {
     const [timeFilter, setTimeFilter] = useState<TimeFilter>('day');
     const activeNudges = nudges.filter(n => !n.dismissed);
 
@@ -145,8 +146,8 @@ const Dashboard: React.FC<DashboardProps> = ({ metrics, setPipelineMetrics, nudg
             {/* Header with Time Filter */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Pipeline Dashboard</h1>
-                    <p className="text-gray-600">Track your recruiting metrics and performance</p>
+                    <h1 className="text-2xl font-bold text-gray-900">Recruiter Command Center</h1>
+                    <p className="text-gray-600">Goal vs Actual metrics for {recruiterInfo.name} - {timeFilter}ly view</p>
                 </div>
                 
                 <div className="flex items-center space-x-2">
@@ -214,7 +215,7 @@ const Dashboard: React.FC<DashboardProps> = ({ metrics, setPipelineMetrics, nudg
 
             {/* Quick Actions */}
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">AI Co-Pilot Actions</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <button className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                         <div className="p-2 bg-blue-100 rounded-lg mr-3">
@@ -224,7 +225,7 @@ const Dashboard: React.FC<DashboardProps> = ({ metrics, setPipelineMetrics, nudg
                         </div>
                         <div className="text-left">
                             <div className="font-medium text-gray-900">AI Assistant</div>
-                            <div className="text-sm text-gray-500">Get help with tasks</div>
+                            <div className="text-sm text-gray-500">Natural language queries & chat</div>
                         </div>
                     </button>
                     
@@ -236,7 +237,7 @@ const Dashboard: React.FC<DashboardProps> = ({ metrics, setPipelineMetrics, nudg
                         </div>
                         <div className="text-left">
                             <div className="font-medium text-gray-900">Social Media</div>
-                            <div className="text-sm text-gray-500">Generate job posts</div>
+                            <div className="text-sm text-gray-500">Draft SMS/email variants + tone options</div>
                         </div>
                     </button>
                     
@@ -248,7 +249,7 @@ const Dashboard: React.FC<DashboardProps> = ({ metrics, setPipelineMetrics, nudg
                         </div>
                         <div className="text-left">
                             <div className="font-medium text-gray-900">View Reports</div>
-                            <div className="text-sm text-gray-500">Weekly scorecard</div>
+                            <div className="text-sm text-gray-500">EOS/90 To-Dos & Issues export</div>
                         </div>
                     </button>
                 </div>

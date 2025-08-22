@@ -285,6 +285,20 @@ function generateAIResponse(
 
     // General responses
     if (lowerInput.includes('draft') && lowerInput.includes('text')) {
+        if (lowerInput.includes('jane') && lowerInput.includes('icu')) {
+            return {
+                content: `Here's a draft text for Jane (ICU RN) about the Dallas opportunity:
+
+"Hi Jane! I have an exciting 13-week ICU position in Dallas starting soon. Days shift, $2,600/week. The facility has excellent ICU protocols and supportive staff. Are you available to chat about this opportunity? - ${recruiterInfo.name}"
+
+Would you like me to create variations or adjust the tone?`,
+                actions: [
+                    { label: 'Copy Text', action: 'copy_text' },
+                    { label: 'Open in Sense', action: 'open_sense' },
+                    { label: 'Create Variations', action: 'create_variations' }
+                ]
+            };
+        }
         return {
             content: `I'd be happy to help you draft a text message! For the best results, tell me:
             1. Who is the candidate (specialty/location)?
@@ -295,6 +309,60 @@ function generateAIResponse(
             actions: [
                 { label: 'Use Template: Follow-up', action: 'template_followup' },
                 { label: 'Use Template: New Job', action: 'template_newjob' }
+            ]
+        };
+    }
+
+    // Natural language query examples
+    if (lowerInput.includes('show') && lowerInput.includes('submission') && lowerInput.includes('ready')) {
+        return {
+            content: `Here are your submission-ready candidates (≥85% readiness):
+            
+**ICU RNs in TX:**
+• Jennifer Martinez (95%) - Phoenix, available immediately
+• David Thompson (92%) - Miami, submitted to Jackson Health
+
+**Med Surg RNs:**
+• Amanda Rodriguez (88%) - Denver, interviewing with Banner
+
+Would you like me to draft outreach messages for any of these candidates?`,
+            actions: [
+                { label: 'Draft Messages', action: 'draft_outreach' },
+                { label: 'View Full Profiles', action: 'view_profiles' }
+            ]
+        };
+    }
+
+    if (lowerInput.includes('create') && lowerInput.includes('todo') && lowerInput.includes('nancy')) {
+        return {
+            content: `I've created a to-do for you:
+
+**Title:** Call Nancy re: TB test upload
+**Due:** Tomorrow (${new Date(Date.now() + 86400000).toLocaleDateString()})
+**Priority:** Medium
+**Category:** Follow-up
+
+The to-do has been enhanced with EOS framework guidance for better execution. Would you like me to set a Teams reminder as well?`,
+            actions: [
+                { label: 'Set Teams Reminder', action: 'teams_reminder' },
+                { label: 'View All To-Dos', action: 'view_todos' }
+            ]
+        };
+    }
+
+    if (lowerInput.includes('log') && lowerInput.includes('issue') && lowerInput.includes('credentialing')) {
+        return {
+            content: `I've logged the credentialing issue:
+
+**Title:** Credentialing delays at St. Luke's
+**Category:** Compliance
+**Priority:** High
+**Status:** Open
+
+The issue has been enhanced with EOS IDS framework (Identify, Discuss, Solve) including specific steps for resolution. Should I notify your manager about this high-priority compliance issue?`,
+            actions: [
+                { label: 'Notify Manager', action: 'notify_manager' },
+                { label: 'View All Issues', action: 'view_issues' }
             ]
         };
     }

@@ -131,8 +131,8 @@ const SocialMediaView: React.FC = () => {
         <div className="space-y-6">
             {/* Header */}
             <div>
-                <h1 className="text-2xl font-bold text-gray-900">Social Media Generator</h1>
-                <p className="text-gray-600">Create engaging social media campaigns from job descriptions</p>
+                <h1 className="text-2xl font-bold text-gray-900">Text AI Assistant</h1>
+                <p className="text-gray-600">Draft SMS/email/social copy, [Copy], [Open in Sense], [Open in Outlook]</p>
             </div>
 
             {/* Job Text Input */}
@@ -202,9 +202,11 @@ const SocialMediaView: React.FC = () => {
                         'Create Social Media Campaign'
                     )}
                 </button>
-                <p className="text-sm font-medium text-primary-700 h-5">
-                    {isLoading ? loadingMessage : 'Ready to generate your campaign with sample or custom data'}
-                </p>
+                {isLoading && (
+                    <p className="text-sm font-medium text-primary-700 animate-pulse">
+                        {loadingMessage}
+                    </p>
+                )}
             </div>
 
             {error && (

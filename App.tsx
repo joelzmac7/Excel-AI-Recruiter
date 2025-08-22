@@ -48,7 +48,14 @@ const App: React.FC = () => {
     const renderCurrentView = () => {
         switch (currentView) {
             case 'dashboard':
-                return <Dashboard metrics={pipelineMetrics} setPipelineMetrics={setPipelineMetrics} nudges={nudges} />;
+                return <Dashboard 
+                    metrics={pipelineMetrics} 
+                    setPipelineMetrics={setPipelineMetrics} 
+                    nudges={nudges}
+                    recruiterInfo={recruiterInfo}
+                />;
+            case 'candidates':
+                return <CandidatesView candidates={candidates} setCandidates={setCandidates} />;
             case 'todos':
                 return <TodosView todos={todos} setTodos={setTodos} recruiterInfo={recruiterInfo} />;
             case 'issues':
@@ -59,8 +66,15 @@ const App: React.FC = () => {
                 return <LearningCenter guides={guides} setGuides={setGuides} recruiterInfo={recruiterInfo} />;
             case 'coaching':
                 return <CoachingView nudges={nudges} setNudges={setNudges} recruiterInfo={recruiterInfo} />;
+            case 'integrations':
+                return <IntegrationsView integrations={mockData.integrations} setIntegrations={() => {}} />;
             default:
-                return <Dashboard metrics={pipelineMetrics} nudges={nudges} />;
+                return <Dashboard 
+                    metrics={pipelineMetrics} 
+                    setPipelineMetrics={setPipelineMetrics} 
+                    nudges={nudges}
+                    recruiterInfo={recruiterInfo}
+                />;
         }
     };
 
