@@ -1,6 +1,63 @@
 import React, { useState } from 'react';
 import { Issue, RecruiterInfo } from '../types';
 
+// EOS IDS Enhancement Function
+const enhanceWithIDS = (title: string, description: string, category: Issue['category']): string => {
+    const baseDescription = description || title;
+    
+    const categoryTips = {
+        credentialing: {
+            identify: "Document specific credentialing delays, missing documents, or compliance issues",
+            discuss: "Review with compliance team, identify root causes, check vendor performance",
+            solve: "Implement backup vendors, create candidate prep checklists, set up tracking systems"
+        },
+        system: {
+            identify: "Specify system performance issues, error messages, or workflow disruptions",
+            discuss: "Engage IT team, assess impact on productivity, review system requirements",
+            solve: "Implement workarounds, schedule system updates, consider alternative tools"
+        },
+        client: {
+            identify: "Detail client communication gaps, feedback delays, or expectation misalignments",
+            discuss: "Schedule client meeting, review service level agreements, assess relationship health",
+            solve: "Set clear communication protocols, establish regular check-ins, document agreements"
+        },
+        candidate: {
+            identify: "Specify candidate concerns, availability changes, or quality issues",
+            discuss: "Review sourcing strategies, assess screening processes, check market conditions",
+            solve: "Improve candidate experience, enhance screening criteria, expand sourcing channels"
+        },
+        other: {
+            identify: "Clearly define the issue and its impact on operations",
+            discuss: "Involve relevant stakeholders, gather all perspectives, assess urgency",
+            solve: "Develop action plan, assign ownership, set follow-up schedule"
+        }
+    };
+    
+    const tips = categoryTips[category];
+    
+    return `${baseDescription}
+
+🎯 EOS IDS Framework:
+
+🔍 IDENTIFY:
+${tips.identify}
+
+💬 DISCUSS:
+${tips.discuss}
+
+✅ SOLVE:
+${tips.solve}
+
+📊 Next Steps:
+1. Gather all relevant data and stakeholder input
+2. Schedule discussion with appropriate team members
+3. Define specific, measurable solutions
+4. Assign clear ownership and deadlines
+5. Set follow-up review date
+
+⚡ EOS Tip: Keep discussions focused on solutions, not blame. Every issue is an opportunity to strengthen your systems.`;
+};
+
 interface IssuesViewProps {
     issues: Issue[];
     setIssues: (issues: Issue[]) => void;
@@ -114,10 +171,13 @@ const IssuesView: React.FC<IssuesViewProps> = ({ issues, setIssues, recruiterInf
         e.preventDefault();
         if (!newIssue.title.trim()) return;
 
+        // EOS IDS Enhancement
+        const enhancedDescription = enhanceWithIDS(newIssue.title, newIssue.description, newIssue.category);
+
         const issue: Issue = {
             id: Date.now().toString(),
             title: newIssue.title,
-            description: newIssue.description,
+            description: enhancedDescription,
             category: newIssue.category,
             status: 'open',
             reportedBy: recruiterInfo.name,

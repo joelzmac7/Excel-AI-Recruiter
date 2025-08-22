@@ -1,6 +1,30 @@
 import React, { useState } from 'react';
 import { ToDo, RecruiterInfo } from '../types';
 
+// EOS AI Enhancement Function
+const enhanceWithEOS = (title: string, description: string, type: 'todo' | 'issue'): string => {
+    const baseDescription = description || title;
+    
+    if (type === 'todo') {
+        return `${baseDescription}
+
+📋 EOS Action Item Framework:
+• SPECIFIC: What exactly needs to be done?
+• MEASURABLE: How will you know it's complete?
+• ASSIGNABLE: Who is accountable for this?
+• REALISTIC: Is this achievable with current resources?
+• TIME-BOUND: When must this be completed?
+
+💡 Success Tips:
+- Break large tasks into smaller, actionable steps
+- Set clear completion criteria
+- Schedule specific time blocks for execution
+- Identify any dependencies or blockers upfront`;
+    }
+    
+    return baseDescription;
+};
+
 interface TodosViewProps {
     todos: ToDo[];
     setTodos: (todos: ToDo[]) => void;
@@ -124,10 +148,13 @@ const TodosView: React.FC<TodosViewProps> = ({ todos, setTodos, recruiterInfo })
         e.preventDefault();
         if (!newTodo.title.trim()) return;
 
+        // EOS AI Enhancement
+        const enhancedDescription = enhanceWithEOS(newTodo.title, newTodo.description, 'todo');
+
         const todo: ToDo = {
             id: Date.now().toString(),
             title: newTodo.title,
-            description: newTodo.description,
+            description: enhancedDescription,
             assignedTo: recruiterInfo.id || recruiterInfo.name,
             assignedBy: recruiterInfo.id || recruiterInfo.name,
             dueDate: newTodo.dueDate,
