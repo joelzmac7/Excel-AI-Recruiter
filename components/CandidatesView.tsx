@@ -88,6 +88,13 @@ const CandidatesView: React.FC<CandidatesViewProps> = ({ candidates, setCandidat
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('all');
     const [showAddForm, setShowAddForm] = useState(false);
+    const [newCandidate, setNewCandidate] = useState({
+        name: '',
+        specialty: '',
+        location: '',
+        nexusUrl: '',
+        notes: ''
+    });
 
     const filteredCandidates = candidates.filter(candidate => {
         const matchesSearch = candidate.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -101,6 +108,34 @@ const CandidatesView: React.FC<CandidatesViewProps> = ({ candidates, setCandidat
         setCandidates(candidates.map(candidate => 
             candidate.id === id ? { ...candidate, status } : candidate
         ));
+    };
+
+    const handleAddCandidate = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newCandidate.name.trim() || !newCandidate.specialty.trim()) return;
+
+        const candidate: CandidateBookmark = {
+            id: Date.now().toString(),
+            name: newCandidate.name,
+            nexusUrl: newCandidate.nexusUrl || `https://nexus.example.com/candidate/${Date.now()}`,
+            status: 'Hot Lead',
+            readinessScore: Math.floor(Math.random() * 40) + 60, // Random score between 60-100
+            specialty: newCandidate.specialty,
+            location: newCandidate.location,
+            notes: newCandidate.notes,
+            dateAdded: new Date().toISOString().split('T')[0],
+            lastContact: new Date().toISOString().split('T')[0]
+        };
+
+        setCandidates([...candidates, candidate]);
+        setNewCandidate({
+            name: '',
+            specialty: '',
+            location: '',
+            nexusUrl: '',
+            notes: ''
+        });
+        setShowAddForm(false);
     };
 
     return (
@@ -174,6 +209,101 @@ const CandidatesView: React.FC<CandidatesViewProps> = ({ candidates, setCandidat
                     <div className="text-sm text-gray-600">Placed</div>
                 </div>
             </div>
+
+            {/* Add Candidate Form */}
+            {showAddForm && (
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Add New Candidate</h3>
+                    <form onSubmit={handleAddCandidate} className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Candidate Name *
+                                </label>
+                                <input
+                                    type="text"
+                                    value={newCandidate.name}
+                                    onChange={(e) => setNewCandidate({...newCandidate, name: e.target.value})}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                                    placeholder="John Doe"
+                                    required
+                                />
+                            </div>
+                            
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Specialty *
+                                </label>
+                                <input
+                                    type="text"
+                                    value={newCandidate.specialty}
+                                    onChange={(e) => setNewCandidate({...newCandidate, specialty: e.target.value})}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                                    placeholder="ICU RN, OR Tech, etc."
+                                    required
+                                />
+                            </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Location
+                                </label>
+                                <input
+                                    type="text"
+                                    value={newCandidate.location}
+                                    onChange={(e) => setNewCandidate({...newCandidate, location: e.target.value})}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                                    placeholder="Phoenix, AZ"
+                                />
+                            </div>
+                            
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Nexus URL
+                                </label>
+                                <input
+                                    type="url"
+                                    value={newCandidate.nexusUrl}
+                                    onChange={(e) => setNewCandidate({...newCandidate, nexusUrl: e.target.value})}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                                    placeholder="https://nexus.example.com/candidate/123"
+                                />
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Notes
+                            </label>
+                            <textarea
+                                value={newCandidate.notes}
+                                onChange={(e) => setNewCandidate({...newCandidate, notes: e.target.value})}
+                                rows={3}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                                placeholder="Any additional notes about the candidate..."
+                            />
+                        </div>
+                        
+                        <div className="flex justify-end space-x-3">
+                            <button
+                                type="button"
+                                onClick={() => setShowAddForm(false)}
+                                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                            >
+                                Add Candidate
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            )}
 
             {/* Candidates Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
