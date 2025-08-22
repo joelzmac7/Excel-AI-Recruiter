@@ -9,7 +9,6 @@ import JobDetailsDisplay from './JobDetailsDisplay';
 import { Spinner } from './ui/Spinner';
 
 const SocialMediaView: React.FC = () => {
-    const [jobText, setJobText] = useState<string>('');
     const [recruiterInfo, setRecruiterInfo] = useState<RecruiterInfo>({ name: '', email: '', phone: '' });
     const [toneState, setToneState] = useState<string>('Default');
     const [jobDetails, setJobDetails] = useState<JobDetails | null>(null);
@@ -19,6 +18,7 @@ const SocialMediaView: React.FC = () => {
     const [loadingMessage, setLoadingMessage] = useState<string>('');
     const [error, setError] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [jobText, setJobText] = useState<string>('');
 
     useEffect(() => {
         const handleRpaMessage = async (event: MessageEvent) => {
