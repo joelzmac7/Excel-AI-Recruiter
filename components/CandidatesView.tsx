@@ -253,7 +253,7 @@ const CandidatesView: React.FC<CandidatesViewProps> = ({ candidates, setCandidat
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
                     <div className="text-2xl font-bold text-gray-600">{needsWorkCandidates.length}</div>
-                    <div className="text-sm text-gray-600">Needs Work (<60%)</div>
+                    <div className="text-sm text-gray-600">Needs Work (&lt;60%)</div>
                 </div>
             </div>
 
