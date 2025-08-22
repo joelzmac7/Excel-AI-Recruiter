@@ -1,24 +1,30 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { JobDetails, SocialPosts, RecruiterInfo } from './types';
-import { parseJobDetailsFromImage, generateCampaign } from './services/geminiService';
-import RecruiterInfoInput from './components/RecruiterInfoInput';
-import SocialPostModal from './components/SocialPostModal';
-import { ToneSelector } from './components/ToneSelector';
+import { AppView, RecruiterInfo, PipelineMetrics, CandidateBookmark, ToDo, Issue, CoachingNudge, LearningGuide } from './types';
 import { COMPANY_LOGO_URL, COMPANY_NAME } from './constants';
-import JobDetailsDisplay from './components/JobDetailsDisplay';
-import { Spinner } from './components/ui/Spinner';
+import Navigation from './components/Navigation';
+import Dashboard from './components/Dashboard';
+import CandidatesView from './components/CandidatesView';
+import TodosView from './components/TodosView';
+import IssuesView from './components/IssuesView';
+import SocialMediaView from './components/SocialMediaView';
+import LearningCenter from './components/LearningCenter';
+import CoachingView from './components/CoachingView';
+import AIAssistant from './components/AIAssistant';
+import { mockData } from './data/mockData';
 
 const App: React.FC = () => {
-    const [recruiterInfo, setRecruiterInfo] = useState<RecruiterInfo>({ name: '', email: '', phone: '' });
-    const [toneState, setToneState] = useState<string>('Default');
-    const [jobDetails, setJobDetails] = useState<JobDetails | null>(null);
-    const [socialPosts, setSocialPosts] = useState<SocialPosts | null>(null);
-    const [cityImage, setCityImage] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [loadingMessage, setLoadingMessage] = useState<string>('Initializing: Waiting for screenshot from browser extension...');
-    const [error, setError] = useState<string | null>(null);
-    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [currentView, setCurrentView] = useState<AppView>('dashboard');
+    const [recruiterInfo, setRecruiterInfo] = useState<RecruiterInfo>(mockData.recruiterInfo);
     const [isInsideIframe, setIsInsideIframe] = useState(false);
+    const [isAIAssistantOpen, setIsAIAssistantOpen] = useState(false);
+
+    // Data states
+    const [pipelineMetrics, setPipelineMetrics] = useState<PipelineMetrics>(mockData.pipelineMetrics);
+    const [candidates, setCandidates] = useState<CandidateBookmark[]>(mockData.candidates);
+    const [todos, setTodos] = useState<ToDo[]>(mockData.todos);
+    const [issues, setIssues] = useState<Issue[]>(mockData.issues);
+    const [nudges, setNudges] = useState<CoachingNudge[]>(mockData.nudges);
+    const [guides, setGuides] = useState<LearningGuide[]>(mockData.guides);
 
     useEffect(() => {
         setIsInsideIframe(window.self !== window.top);
@@ -29,26 +35,6 @@ const App: React.FC = () => {
                 if (data.payload.recruiterInfo) {
                     setRecruiterInfo(prevInfo => ({ ...prevInfo, ...data.payload.recruiterInfo }));
                 }
-
-                if (data.payload.screenshotBase64) {
-                    try {
-                        setError(null);
-                        setIsLoading(true);
-                        setLoadingMessage('Step 1/3: Analyzing job details from screenshot...');
-                        const details = await parseJobDetailsFromImage(data.payload.screenshotBase64);
-                        setJobDetails(details);
-                        setLoadingMessage('Analysis complete. Please review the details below.');
-                        setIsLoading(false);
-                    } catch (err) {
-                        console.error(err);
-                        setError(err instanceof Error ? err.message : "An unknown error occurred during screenshot analysis.");
-                        setLoadingMessage('Failed to analyze screenshot.');
-                        setIsLoading(false);
-                    }
-                } else {
-                     setError("No screenshot was received from the RPA script.");
-                     setIsLoading(false);
-                }
             }
         };
 
@@ -56,122 +42,99 @@ const App: React.FC = () => {
         return () => window.removeEventListener('message', handleRpaMessage);
     }, []);
 
-
-    const handleGenerateCampaign = useCallback(async () => {
-        if (!recruiterInfo.name.trim() || !recruiterInfo.email.trim() || !recruiterInfo.phone.trim()) {
-            setError("Please fill in your complete recruiter information.");
-            return;
-        }
-        if (!jobDetails) {
-            setError("Job details have not been analyzed yet.");
-            return;
-        }
-
-        setIsLoading(true);
-        setError(null);
-        setSocialPosts(null);
-        setCityImage(null);
-        setIsModalOpen(false);
-
-        try {
-            setLoadingMessage('Step 2/3: Generating social media campaign...');
-            const { cityImage, socialPosts } = await generateCampaign({ jobDetails, recruiterInfo, toneState });
-            
-            setCityImage(`data:image/jpeg;base64,${cityImage}`);
-            setSocialPosts(socialPosts);
-            
-            setLoadingMessage('Step 3/3: All done!');
-            setIsLoading(false);
-            setIsModalOpen(true);
-
-        } catch (err) {
-            console.error(err);
-            setError(err instanceof Error ? err.message : "An unknown error occurred. Check the console for details.");
-            setLoadingMessage("Campaign generation failed.");
-            setIsLoading(false);
-        }
-    }, [jobDetails, recruiterInfo, toneState]);
-
     const handleCloseApp = () => {
         window.parent.postMessage({ type: 'CLOSE_RECRUITER_APP' }, '*');
     };
 
+    const renderCurrentView = () => {
+        switch (currentView) {
+            case 'dashboard':
+                return <Dashboard metrics={pipelineMetrics} nudges={nudges} />;
+            case 'candidates':
+                return <CandidatesView candidates={candidates} setCandidates={setCandidates} />;
+            case 'todos':
+                return <TodosView todos={todos} setTodos={setTodos} recruiterInfo={recruiterInfo} />;
+            case 'issues':
+                return <IssuesView issues={issues} setIssues={setIssues} recruiterInfo={recruiterInfo} />;
+            case 'social':
+                return <SocialMediaView />;
+            case 'learning':
+                return <LearningCenter guides={guides} setGuides={setGuides} recruiterInfo={recruiterInfo} />;
+            case 'coaching':
+                return <CoachingView nudges={nudges} setNudges={setNudges} recruiterInfo={recruiterInfo} />;
+            default:
+                return <Dashboard metrics={pipelineMetrics} nudges={nudges} />;
+        }
+    };
+
     return (
-        <div className="min-h-screen bg-gray-50 text-gray-800 flex flex-col items-center p-4 sm:p-6 lg:p-8">
-            <div className="w-full max-w-5xl mx-auto">
-                <header className="text-center mb-8 flex flex-col items-center relative">
-                    {isInsideIframe && (
-                        <button
-                            onClick={handleCloseApp}
-                            className="absolute top-[-8px] right-[-8px] text-gray-400 hover:text-primary-600 transition-all rounded-full bg-white/50 hover:bg-white p-1"
-                            aria-label="Close"
-                        >
-                            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        </button>
-                    )}
-                    <img src={COMPANY_LOGO_URL} alt={`${COMPANY_NAME} Logo`} className="h-20 w-auto mb-4" />
-                    <h1 className="text-4xl sm:text-5xl font-bold text-primary-700">Social Post AI</h1>
-                    <p className="mt-2 text-lg text-gray-600">Instantly create engaging social media campaigns from any job description.</p>
-                </header>
-                
-                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                    <RecruiterInfoInput
-                        recruiterInfo={recruiterInfo}
-                        setRecruiterInfo={setRecruiterInfo}
-                        isLoading={isLoading}
-                    />
-                     <ToneSelector
-                        selectedState={toneState}
-                        setSelectedState={setToneState}
-                        isLoading={isLoading}
-                    />
-                </div>
+        <div className="min-h-screen bg-gray-50 text-gray-800 flex">
+            {/* Sidebar Navigation */}
+            <Navigation 
+                currentView={currentView} 
+                setCurrentView={setCurrentView}
+                recruiterInfo={recruiterInfo}
+                onClose={isInsideIframe ? handleCloseApp : undefined}
+            />
 
-                {jobDetails && !isLoading && (
-                    <JobDetailsDisplay
-                        jobDetails={jobDetails}
-                        setJobDetails={setJobDetails}
-                        isLoading={isLoading}
-                    />
-                )}
-                
-                <div className="mt-8 flex flex-col items-center justify-center gap-4">
-                    <button
-                        onClick={handleGenerateCampaign}
-                        disabled={isLoading || !jobDetails}
-                        className="w-full sm:w-auto inline-flex items-center justify-center px-12 py-4 border border-transparent text-lg font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:bg-primary-300 disabled:cursor-not-allowed transition-colors"
-                        aria-live="polite"
-                    >
-                        {isLoading ? (
-                            <>
-                                <Spinner />
-                                Processing...
-                            </>
-                        ) : (
-                            'Create Social Media Campaign'
-                        )}
-                    </button>
-                    <p className="text-sm font-medium text-primary-700 h-5">{isLoading ? loadingMessage : (jobDetails ? 'Ready to generate your campaign.' : 'Waiting for details...')}</p>
-                </div>
-
-
-                {error && (
-                    <div className="mt-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                        <strong className="font-bold">Error: </strong>
-                        <span className="block sm:inline">{error}</span>
+            {/* Main Content */}
+            <div className="flex-1 flex flex-col overflow-hidden">
+                {/* Header */}
+                <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <img src={COMPANY_LOGO_URL} alt={`${COMPANY_NAME} Logo`} className="h-8 w-auto" />
+                            <div>
+                                <h1 className="text-xl font-semibold text-gray-900">AI Recruiter Assistant</h1>
+                                <p className="text-sm text-gray-500">Welcome back, {recruiterInfo.name}</p>
+                            </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={() => setIsAIAssistantOpen(true)}
+                                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
+                            >
+                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                </svg>
+                                AI Assistant
+                            </button>
+                            
+                            {isInsideIframe && (
+                                <button
+                                    onClick={handleCloseApp}
+                                    className="text-gray-400 hover:text-gray-600 transition-colors p-2"
+                                    aria-label="Close"
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            )}
+                        </div>
                     </div>
-                )}
+                </header>
+
+                {/* Main Content Area */}
+                <main className="flex-1 overflow-y-auto p-6">
+                    {renderCurrentView()}
+                </main>
             </div>
 
-            {isModalOpen && socialPosts && jobDetails && (
-                <SocialPostModal
-                    isOpen={isModalOpen}
-                    onClose={() => setIsModalOpen(false)}
-                    image={cityImage}
-                    posts={socialPosts}
-                    details={jobDetails}
-                    companyLogoUrl={COMPANY_LOGO_URL}
-                    companyName={COMPANY_NAME}
+            {/* AI Assistant Modal */}
+            {isAIAssistantOpen && (
+                <AIAssistant
+                    isOpen={isAIAssistantOpen}
+                    onClose={() => setIsAIAssistantOpen(false)}
+                    recruiterInfo={recruiterInfo}
+                    currentView={currentView}
+                    contextData={{
+                        metrics: pipelineMetrics,
+                        candidates,
+                        todos,
+                        issues
+                    }}
                 />
             )}
         </div>
