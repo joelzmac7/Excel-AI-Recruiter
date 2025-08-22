@@ -314,7 +314,7 @@ const CandidatesView: React.FC<CandidatesViewProps> = ({ candidates, setCandidat
                         <option value="all">All Readiness</option>
                         <option value="ready">Ready (≥85%)</option>
                         <option value="in-progress">In Progress (60-84%)</option>
-                        <option value="needs-work">Needs Work (<60%)</option>
+                        <option value="needs-work">Needs Work (&lt;60%)</option>
                     </select>
                 </div>
             </div>
